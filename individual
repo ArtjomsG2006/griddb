@@ -1,0 +1,129 @@
+# Import the Turtle Graphics module
+import turtle
+import random
+
+# Define program constants
+WIDTH = 500
+HEIGHT = 500
+DELAY = 200 # Milisekundes starp frame update
+FOOD_SIZE = 10
+
+# Kustibas offsets
+offsets = {
+    "up": (0,20),
+    "down": (0,-20),
+    "right": (20,0),
+    "left": (-20,0)
+}
+
+offsets2 = {
+    "w": (0,20),
+    "s": (0,-20),
+    "d": (20,0),
+    "a": (-20,0)
+}
+# Apkopojam izsauksanu viena funkcija
+def bind_key_direction():
+    screen.onkey(lambda: set_snake1_direction("up"), "Up")
+    screen.onkey(lambda: set_snake1_direction("down"), "Down")
+    screen.onkey(lambda: set_snake1_direction("right"), "Right")
+    screen.onkey(lambda: set_snake1_direction("left"), "Left")
+    screen.onkey(lambda: set_snake2_direction("w"), "W")
+    screen.onkey(lambda: set_snake2_direction("s"), "S")
+    screen.onkey(lambda: set_snake2_direction("d"), "D")
+    screen.onkey(lambda: set_snake2_direction("a"), "A")
+
+def set_snake1_direction(direction):
+    global snake_direction
+    if direction == "up":
+        if snake_direction != "down":
+            snake_direction = "up"
+    if direction == "down":
+        if snake_direction != "up":
+            snake_direction = "down"
+    if direction == "right":
+        if snake_direction != "left":
+            snake_direction = "right"
+    if direction == "left":
+        if snake_direction != "right":
+            snake_direction = "left"
+
+def set_snake2_direction(direction):
+    global snake_direction
+    if direction == "up":
+        if snake_direction != "down":
+            snake_direction = "up"
+    if direction == "down":
+        if snake_direction != "up":
+            snake_direction = "down"
+    if direction == "right":
+        if snake_direction != "left":
+            snake_direction = "right"
+    if direction == "left":
+        if snake_direction != "right":
+            snake_direction = "left"
+
+
+
+# Food apesana jeb skatas vai galva sastapas ar food
+def food_collision():
+    global food_pos, score
+    if get_distance(snake[-1], food_pos) < 20:
+        score += 1
+        food_pos = get_random_food_pos()
+        food.goto(food_pos)
+        return True
+    return False
+
+# food koordinatas random pozicija
+def get_random_food_pos():
+    x = random.randint(- WIDTH / 2 + FOOD_SIZE, WIDTH / 2 - FOOD_SIZE)
+    y = random.randint(- HEIGHT / 2 + FOOD_SIZE, HEIGHT / 2 - FOOD_SIZE)
+    return (x, y)
+
+# Distances aprekins
+def get_distance(head, foodery):
+    x1, y1 = head
+    x2, y2 = foodery
+    distance = ((x2 - x1) ** 2 + (y2 - y1) **2) ** 0.5
+    return distance
+
+# reset funkcija
+def reset():
+    global snake, snake_direction, score, food_pos
+    snake = [[0,0], [20,0], [40,0], [60,0]]
+    snake_direction = "up" # Sakuma virziens
+    score = 0
+    food_pos = get_random_food_pos()
+    food.goto(food_pos)
+    game_loop()
+
+# Create a window where we will do our drawing.
+screen = turtle.Screen()
+screen.setup(WIDTH, HEIGHT)  # Set the dimensions of the Turtle Graphics window.
+screen.title("Snake")
+screen.bgcolor("green")
+screen.tracer(0) # Izsledzam automatisko animaciju
+
+# event handler
+screen.listen() # Klausas vai kaut kas notiek
+bind_key_direction()
+
+# Create a turtle to do your bidding
+stamper = turtle.Turtle()
+stamper.shape("square")
+stamper.color("white")
+stamper.penup() # Lai nezime uz ekrana
+
+# Radam food objektu
+food = turtle.Turtle()
+food.shape("circle")
+food.color("red")
+food.shapesize(FOOD_SIZE / 20)
+food.penup()
+
+# Snake 1.kustiba
+reset()
+
+# This statement (or an equivalent) is needed at the end of all your turtle programs.
+turtle.done()
