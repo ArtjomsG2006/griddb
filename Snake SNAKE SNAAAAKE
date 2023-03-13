@@ -1,0 +1,401 @@
+#Artjoms Grigorjevs DT1-1
+# Import the Turtle Graphics module
+import turtle
+import time
+import random 
+import keyboard
+import msvcrt
+import tkinter as tk
+
+score = 0
+score_second = 0
+delay = 0.1
+ 
+snake_name = input("Name ")
+snake_second_name = input("Name ")
+# Define program constants
+WIDTH = 600
+HEIGHT = 800
+DELAY = 200 # Milisekundes starp frame update
+FOOD_SIZE = 10
+# Radam food objektu
+food = turtle.Turtle()
+food2 = turtle.Turtle()
+food3 = turtle.Turtle()
+food.shape("circle")
+food2.shape("square")
+food3.shape("triangle")
+food.color("#ff3e1e")
+food2.color("#ff3e1e")
+food3.color("#ffffff")
+food.shapesize(FOOD_SIZE / 20)
+food2.shapesize(FOOD_SIZE / 20)
+food3.shapesize(FOOD_SIZE / 10)
+food.penup()
+food2.penup()
+food3.penup()
+ 
+# food koordinatas random pozicija
+def get_random_food_pos():
+    x = random.randint(- WIDTH / 2 + FOOD_SIZE, WIDTH / 2 - FOOD_SIZE)
+    y = random.randint(- HEIGHT / 2 + FOOD_SIZE, HEIGHT / 2 - FOOD_SIZE)
+    return (x, y)
+def get_random_food_pos_two():
+    x = random.randint(- WIDTH / 2 + FOOD_SIZE, WIDTH / 2 - FOOD_SIZE)
+    y = random.randint(- HEIGHT / 2 + FOOD_SIZE, HEIGHT / 2 - FOOD_SIZE)
+    return (x, y)
+def get_random_food_pos_three():
+    x = random.randint(- WIDTH / 2 + FOOD_SIZE, WIDTH / 2 - FOOD_SIZE)
+    y = random.randint(- HEIGHT / 2 + FOOD_SIZE, HEIGHT / 2 - FOOD_SIZE)
+    return (x, y) 
+# Snake 1.kustiba
+# Kustibas offsets
+offsets = {
+    "up": (0,20),
+    "down": (0,-20),
+    "right": (20,0),
+    "left": (-20,0)
+} 
+ 
+pen = turtle.Turtle()
+pen.penup()
+pen.color('white')
+pen.hideturtle()
+pen.penup()
+ 
+# Apkopojam izsauksanu viena funkcija
+def bind_key_direction():
+    screen.onkey(lambda: set_snake_direction("up"), "Up")
+    screen.onkey(lambda: set_snake_direction("down"), "Down")
+    screen.onkey(lambda: set_snake_direction("right"), "Right")
+    screen.onkey(lambda: set_snake_direction("left"), "Left")
+    screen.listen()
+ 
+def set_snake_direction(direction):
+    global snake_direction
+    if direction == "up":
+        if snake_direction != "down":
+            snake_direction = "up"
+    if direction == "down":
+        if snake_direction != "up":
+            snake_direction = "down"
+    if direction == "right":
+        if snake_direction != "left":
+            snake_direction = "right"
+    if direction == "left":
+        if snake_direction != "right":
+            snake_direction = "left"
+ 
+def game_loop():
+    stamper.clearstamps() # Izdzesam uzzimeto snake
+    stamper_second.clearstamps() # Izdzesam uzzimeto snake
+
+
+    new_head = snake[-1].copy()
+    new_head[0] += offsets[snake_direction][0]
+    new_head[-1] += offsets[snake_direction][1]
+ 
+    new_head_second = snake_second[-1].copy()
+    new_head_second[0] += offsets[snake_direction_second][0]
+    new_head_second[1] += offsets[snake_direction_second][-1]
+
+
+
+    if new_head in snake_second:
+        global score_second
+        score_second -= 1
+
+    if new_head_second in snake:
+            global score
+            score -= 1
+
+ # Parbaudam sadursmi
+    if new_head_second in snake_second or new_head_second[0] < - WIDTH / 2 or new_head_second[0] > WIDTH / 2 \
+            or new_head_second[1] < - HEIGHT / 2 or new_head_second[1] > HEIGHT / 2:    
+
+        game_over()
+        
+    # Parbaudam sadursmi
+    if new_head in snake or new_head[0] < - WIDTH / 2 or new_head[0] > WIDTH / 2 \
+            or new_head[1] < - HEIGHT / 2 or new_head[1] > HEIGHT / 2:
+
+        game_over()
+
+    else:
+ 
+        # Pievienojam jauno galvu
+        snake_second.append(new_head_second) # Iekavas, ko gribam pievienot
+
+         # Pievienojam jauno galvu
+        snake.append(new_head) # Iekavas, ko gribam pievienot
+
+        if not food_collision():
+            # Idzesam asti
+            snake.pop(0) # 0, jo astes koordinatas
+    
+        if not food_collision_second():
+            # Idzesam asti
+            snake_second.pop(0) # 0, jo astes koordinatas
+
+         # Draw snake
+        for segment in snake:
+            stamper.goto(segment[0], segment[1])
+            stamper.stamp()
+
+        # Draw snake
+        for segment_second in snake_second:
+            stamper_second.goto(segment_second[0], segment_second[1])
+            stamper_second.stamp()
+        
+        # Update screen
+        screen_second.title(f"Snake game. Score:                 {snake_name}:{score}    {snake_second_name}:{score_second}")
+        screen_second.update()
+        # Update screen
+        screen.title(f"Snake game. Score:                 {snake_name}:{score}    {snake_second_name}:{score_second}")
+        screen.update()
+ 
+        # Lai atkartojas
+        turtle.ontimer(game_loop, DELAY)
+
+
+ 
+# Food apesana jeb skatas vai galva sastapas ar food
+def food_collision():
+    global snake, food_pos, food_pos_two , food_pos_three , score
+    if get_distance(snake[-1], food_pos) < 20:
+        score += 1
+        food_pos = get_random_food_pos()
+        food.goto(food_pos)
+        return True
+    if get_distance(snake[-1], food_pos_two) < 20:
+        score += 1
+        food_pos_two = get_random_food_pos_two()
+        food2.goto(food_pos_two)
+        return True
+    if get_distance(snake[-1], food_pos_three) < 20:
+        score += 3
+        food_pos_three = get_random_food_pos_three()
+        food3.goto(food_pos_three)
+        return True
+    if score >=20:
+        pen.penup()
+        pen.setposition(0,-60)
+        game_over_second()
+    return False
+ 
+# Create a window where we will do our drawing.
+screen = turtle.Screen()
+screen.setup(WIDTH, HEIGHT)  # Set the dimensions of the Turtle Graphics window.
+screen.title("Snake")
+screen.bgcolor("#0000ff")
+screen.tracer(0) # Izsledzam automatisko animaciju
+ 
+stamper = turtle.Turtle()
+stamper.shape("square")
+stamper.color(input("Chose snake first color "))
+stamper.penup() # Lai nezime uz ekrana
+ 
+ 
+# Distances aprekins
+def get_distance(head, foodery):
+    x1, y1 = head
+    x2, y2 = foodery
+    distance = ((x2 - x1) ** 2 + (y2 - y1) **2) ** 0.5
+    return distance
+ 
+# event handler
+screen.listen() # Klausas vai kaut kas notiek
+bind_key_direction()
+ 
+
+
+
+# reset funkcija
+def reset():
+    global snake, snake_direction, score, food_pos, food_pos_two, food_pos_three, snake_second, snake_direction_second, score_second, food_pos, food_pos_two, food_pos_three
+    snake = [[0,0], [20,0], [40,0], [60,0], [80,0]]
+    snake_direction = "up" # Sakuma virziens
+    score = 0
+    food_pos = get_random_food_pos()
+    food_pos_two = get_random_food_pos_two()
+    food_pos_three = get_random_food_pos_three()    
+    food.goto(food_pos)
+    food2.goto(food_pos_two)
+    food3.goto(food_pos_three)
+    snake_second = [[0,0], [-20,0], [-40,0], [-60,0]]
+    snake_direction_second = "down" # Sakuma virziens
+    score_second = 0
+    food_pos = get_random_food_pos()
+    food_pos_two = get_random_food_pos_two()
+    food_pos_three = get_random_food_pos_three()    
+    food.goto(food_pos)
+    food2.goto(food_pos_two)
+    food3.goto(food_pos_three)
+    game_loop()
+ 
+
+
+def clear_all():
+    turtle.clear()
+
+message_window = tk.Tk()
+
+def close_message():
+    message_window.destroy()
+
+
+
+    
+def close_message():
+    if message_window.winfo_exists():
+        message_window.destroy()
+def game_over():
+    stop()
+    message_window = tk.Tk()
+    message_window.title("")
+    message_text = tk.Label(message_window, text="Game over!")
+    message_text.pack()
+
+    def close_message():
+        message_window.destroy()
+        reset()
+
+    ok_button = tk.Button(message_window, text="ОК", command=close_message)
+    ok_button.pack()
+
+    message_window.protocol("WM_DELETE_WINDOW", close_message)
+
+def game_over_second():
+    stop()
+    message_window = tk.Tk()
+    message_window.title("")
+    message_text = tk.Label(message_window, text=f"Game over! WINNER {snake_name}")
+    message_text.pack()
+
+    def close_message():
+        message_window.destroy()
+        reset()
+
+    ok_button = tk.Button(message_window, text="ОК", command=close_message)
+    ok_button.pack()
+
+    message_window.protocol("WM_DELETE_WINDOW", close_message)    
+
+def game_over_three():
+    stop()
+    message_window = tk.Tk()
+    message_window.title("")
+    message_text = tk.Label(message_window, text=f"Game over! WINNER {snake_second_name}")
+    message_text.pack()
+
+    def close_message():
+        message_window.destroy()
+        reset()
+
+    ok_button = tk.Button(message_window, text="ОК", command=close_message)
+    ok_button.pack()
+
+    message_window.protocol("WM_DELETE_WINDOW", close_message)     
+
+
+#Second snake
+#########################################################################################################################
+#########################################################################################################################
+#########################################################################################################################
+#########################################################################################################################
+#########################################################################################################################
+#########################################################################################################################
+ 
+ 
+# Apkopojam izsauksanu viena funkcija
+def bind_key_direction_second():
+    screen_second.onkey(lambda: set_snake_direction_second("up"), "w")
+    screen_second.onkey(lambda: set_snake_direction_second("down"), "s")
+    screen_second.onkey(lambda: set_snake_direction_second("right"), "d")
+    screen_second.onkey(lambda: set_snake_direction_second("left"), "a")
+    screen_second.listen()
+ 
+def set_snake_direction_second(direction_second):
+    global snake_direction_second
+    if direction_second == "up":
+        if snake_direction_second != "down":
+            snake_direction_second = "up"
+    if direction_second == "down":
+        if snake_direction_second != "up":
+            snake_direction_second = "down"
+    if direction_second == "right":
+        if snake_direction_second!= "left":
+            snake_direction_second = "right"
+    if direction_second == "left":
+        if snake_direction_second != "right":
+            snake_direction_second = "left"
+ 
+    new_head_second = snake_second[-1].copy()
+    new_head_second[0] += offsets[snake_direction_second][0]
+    new_head_second[1] += offsets[snake_direction_second][-1]
+ 
+    if new_head_second in snake:
+        global score
+        score -= 1
+    
+ 
+# Food apesana jeb skatas vai galva sastapas ar food
+def food_collision_second():
+    global snake_second, food_pos, food_pos_two , food_pos_three , score_second
+    if get_distance(snake_second[-1], food_pos) < 20:
+        score_second += 1
+        food_pos = get_random_food_pos()
+        food.goto(food_pos)
+        return True
+    if get_distance(snake_second[-1], food_pos_two) < 20:
+        score_second += 1
+        food_pos_two = get_random_food_pos_two()
+        food2.goto(food_pos_two)
+        return True
+    if get_distance(snake_second[-1], food_pos_three) < 20:
+        score_second += 3
+        food_pos_three = get_random_food_pos_three()
+        food3.goto(food_pos_three)
+        return True
+    if score_second >=20:
+        pen.penup()
+        pen.setposition(0,-60)
+        game_over_three()
+    return False
+  
+# Create a window where we will do our drawing.
+screen_second = turtle.Screen()
+screen_second.setup(WIDTH, HEIGHT)  # Set the dimensions of the Turtle Graphics window.
+screen_second.title("Snake")
+screen_second.bgcolor("#0000ff")
+screen_second.tracer(0) # Izsledzam automatisko animaciju
+ 
+stamper_second = turtle.Turtle()
+stamper_second.shape("square")
+stamper_second.color(input("Choose snake second color "))
+stamper_second.penup() # Lai nezime uz ekrana
+ 
+
+ 
+# Distances aprekins
+def get_distance_second(head_second, foodery_second):
+    x1, y1 = head_second
+    x2, y2 = foodery_second
+    distance_second = ((x2 - x1) ** 2 + (y2 - y1) **2) ** 0.5
+    return distance_second
+ 
+# event handler
+screen.listen() # Klausas vai kaut kas notiek
+bind_key_direction_second()
+
+def stop():
+    if snake or snake_second in game_loop:
+        reset()
+        snake.clear() 
+        snake_second.clear()
+        
+
+
+reset()
+# This statement (or an equivalent) is needed at the end of all your turtle programs.
+turtle.done()
